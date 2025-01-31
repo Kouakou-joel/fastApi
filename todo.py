@@ -6,6 +6,7 @@ app = FastAPI(title="Todo API", version="v1")
 
 # Modèle de données pour un Todo
 class Todo(BaseModel):
+    id: int
     name: str
     description: str
     due_date: str
@@ -13,9 +14,11 @@ class Todo(BaseModel):
 # Liste pour stocker les Todos
 store_todo: List[Todo] = []
 
+print(store_todo)
+
 @app.get("/")
 def default():
-    return {"message": "Bonjour"}
+    return {"message": "Bonjour todo"}
 
 #  Récupérer tous les Todos
 @app.get("/todos/", response_model=List[Todo])

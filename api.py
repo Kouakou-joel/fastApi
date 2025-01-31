@@ -1,4 +1,4 @@
-from fastapi import FastAPI,Query,Path,UploadFile, File
+from fastapi import FastAPI,Query,Path,UploadFile,Form
 from tensorflow.keras.models import load_model
 import numpy as np
 import io
@@ -116,3 +116,7 @@ async def predict(file: UploadFile):
 async def make_position(coord: CoordIn):
     #db wrie completed
     return coord
+
+@app.post("/login/")
+async def login(username: str = Form(...), password: str = Form(...)):
+    return {username: username}
