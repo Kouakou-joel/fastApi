@@ -4,6 +4,7 @@ import numpy as np
 import io
 from PIL import Image
 from pydantic import BaseModel
+from typing import Optional
 from data import (get_all_teams_from_fake_db,
                    get_team_from_fake_db,create_team_in_fake_db
 )
@@ -22,6 +23,19 @@ def get_items():
         {"id":3 , "description": "items"},
         {"id":4 , "description": "items"}
     ]
+
+class CoordIn(BaseModel):
+    password: str
+    lad: float
+    long: float
+    zom: Optional[int] = None
+  
+class CoordOut(BaseModel):
+    lad: float
+    long: float
+    zom: Optional[int] = None
+  
+
 
 class Team(BaseModel):
     id: int
@@ -97,3 +111,8 @@ async def predict(file: UploadFile):
     rec = predictions[0][0].tolist()  
 
     return {"predictions": rec}
+
+@app.post("/position/", response_model=CoordOut)
+async def make_position(coord: CoordIn):
+    #db wrie completed
+    return coord
