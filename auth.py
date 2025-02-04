@@ -13,8 +13,7 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 30
 app = FastAPI()
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token/")
-
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 fake_db = {
     "joe": {
@@ -68,9 +67,7 @@ def get_user(db, username: str):
 
 def authenticate_user(db, username: str, password: str):
     user = get_user(db, username)
-    if not user:
-        return False
-    if not verify_password(password, user.hashed_password):
+    if not user or not verify_password(password, user.hashed_password):
         return False
     return user
 
@@ -104,6 +101,10 @@ async def get_current_active_user(current_user: UserInDB = Depends(get_current_u
     if current_user.disabled:
         raise HTTPException(status_code=400, detail="Inactive user")
     return current_user
+
+@app.get("/")
+async def welcome():
+    return {"message": "Bienvenue dans l'API FastAPI !"}
 
 @app.post("/token/", response_model=Token)
 async def login(form_data: OAuth2PasswordRequestForm = Depends()):
@@ -143,5 +144,6 @@ async def delete_tache(tache_id: int, current_user: User = Depends(get_current_a
     tache = next((t for t in tache_db if t.id == tache_id and t.owner == current_user.username), None)
     if tache is None:
         raise HTTPException(status_code=404, detail="Tache not found or unauthorized")
+    
     tache_db = [t for t in tache_db if t.id != tache_id]
     return {"message": "Tache deleted successfully"}
