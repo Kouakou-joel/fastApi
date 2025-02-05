@@ -40,6 +40,12 @@ class User(BaseModel):
     email: Optional[str] = None
     disabled: Optional[bool] = None
 
+class UserCreate(BaseModel):
+    username: str
+    full_name: Optional[str] = None
+    email: Optional[str] = None
+    password: str 
+
 class UserInDB(User):
     hashed_password: str
 
@@ -125,6 +131,22 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()):
 @app.get("/users/me", response_model=User)
 async def read_users_me(current_user: User = Depends(get_current_active_user)):
     return current_user
+
+@app.post("/user/", response_model=User)
+async def create_user(user: UserCreate):
+    if user.username in fake_db:
+        raise HTTPException(status_code=400, detail="username alreadY registerd")
+
+    hashed_password = get_password_hash(user.password)
+
+    fake_db[user.username]= {
+    "username": user.username,
+    "full_name": user.full_name,
+    "email": user.email,
+    "hashed_password": hashed_password,
+    "disabled": False
+}
+    return User(username=user.username, full_name=user.full_name, email=user.email, disabled=False)
 
 @app.post("/tache/", response_model=Tache)
 async def create_tache(tache: TacheCreate, current_user: User = Depends(get_current_active_user)):
