@@ -132,6 +132,18 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()):
 async def read_users_me(current_user: User = Depends(get_current_active_user)):
     return current_user
 
+@app.get("/users/", response_model=List[User])
+async def get_users(current_user: User = Depends(get_current_active_user)):
+    return [
+        User(
+            username=u,
+            full_name=d.get("full_name"),
+            email=d.get("email"),
+            disabled=d.get("disabled"),
+        )
+        for u, d in fake_db.items()
+    ]
+
 @app.post("/user/", response_model=User)
 async def create_user(user: UserCreate):
     if user.username in fake_db:
