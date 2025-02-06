@@ -121,7 +121,7 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()):
             detail="Incorrect username or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    
+ 
     access_token = create_access_token(
         data={"sub": user.username}, 
         expires_delta=timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
@@ -171,6 +171,18 @@ async def create_tache(tache: TacheCreate, current_user: User = Depends(get_curr
 async def get_my_tache(current_user: User = Depends(get_current_active_user)):
     user_tache = [tache for tache in tache_db if tache.owner == current_user.username]
     return user_tache
+
+@app.put("/tache/{tache_id}", response_model=Tache)
+async def update_tache(tache_id: int, tache: TacheCreate, current_user: User = Depends(get_current_active_user)):
+    existing_tache = next((t for t in tache_db if t.id == tache_id and t.owner == current_user.username), None)
+    
+    if not existing_tache:
+        raise HTTPException(status_code=404, detail="Tache not found or unauthorized")
+    
+    existing_tache.title = tache.title
+    existing_tache.description = tache.description
+
+    return existing_tache
 
 @app.delete("/tache/{tache_id}")
 async def delete_tache(tache_id: int, current_user: User = Depends(get_current_active_user)):

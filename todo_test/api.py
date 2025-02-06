@@ -5,7 +5,7 @@ import io
 from PIL import Image
 from pydantic import BaseModel
 from typing import Optional
-from data import (get_all_teams_from_fake_db,
+from todo_test.data import (get_all_teams_from_fake_db,
                    get_team_from_fake_db,create_team_in_fake_db
 )
 
